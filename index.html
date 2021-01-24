@@ -6,21 +6,40 @@
 	</head>
 	<body>
 		<h1 id="weather"></h1>
+		<input type="text" placeholder="Zip Code" id="new-location" />
+		<button id="change-location">Lookup</button>
 
 		<script>
-			let request = new XMLHttpRequest();
-			request.open(
-				'GET',
-				'https://api.openweathermap.org/data/2.5/weather?zip=72758&appid=ccef2c8c8034982955bec1e0b2a83e36'
-			);
-			request.addEventListener('load', function () {
-				let resp = JSON.parse(this.responseText);
+			getWeather(72758);
 
-				console.log(resp.name);
-				document.getElementById('weather').innerText =
-					resp.name + ' is ' + resp.weather[0].main + ' today.';
-			});
-			request.send();
+			document
+				.getElementById('change-location')
+				.addEventListener('click', function () {
+					getWeather(document.getElementById('new-location').value);
+				});
+
+			function getWeather(zipcode) {
+				let request = new XMLHttpRequest();
+				request.open(
+					'GET',
+					'https://api.openweathermap.org/data/2.5/weather?zip=' +
+						zipcode +
+						',us&appid=ccef2c8c8034982955bec1e0b2a83e36'
+				);
+				request.addEventListener('load', function (event) {
+					let resp = JSON.parse(event.currentTarget.responseText);
+
+					console.log(resp);
+					document.getElementById('weather').innerText =
+						resp.name +
+						' is ' +
+						resp.weather[0].main +
+						' and ' +
+						Math.ceil(resp.main.temp) +
+						' degrees today.';
+				});
+				request.send();
+			}
 		</script>
 	</body>
 </html>
