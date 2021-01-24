@@ -2,12 +2,53 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Weather App</title>
+		<!-- CSS only -->
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+			crossorigin="anonymous"
+		/>
+		<link rel="stylesheet" href="./assets/css/style.css" />
+		<title>USA Simple Weather App</title>
 	</head>
 	<body>
-		<h1 id="weather"></h1>
-		<input type="text" placeholder="Zip Code" id="new-location" />
-		<button id="change-location">Lookup</button>
+		<div class="d-sm-inline-flex header">
+			<img class="logo" src="./assets/images/logo.png" alt="Logo" />
+			<h1>USA Simple Weather</h1>
+		</div>
+		<br />
+		<div class="container container-white-bg">
+			<div class="row">
+				<div class="col-med-6 col-lg-6">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="Please enter Zip Code"
+						id="new-location"
+					/>
+					<button id="change-location" class="btn btn-primary">Lookup</button>
+					<input id="weather" type="hidden" />
+					<div class="card">
+						<span class="icon">
+							<img id="weatherIcon" />
+						</span>
+						<div class="title">
+							<h1 id="location"></h1>
+						</div>
+						<div class="temp"><h2 id="temperature"></h2></div>
+						<div class="row">
+							<div class="col-4">
+								<div class="header">General</div>
+								<div class="value">
+									<h3 id="currentWeather"></h3>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<script>
 			getWeather(72758);
@@ -29,16 +70,40 @@
 				request.addEventListener('load', function (event) {
 					let resp = JSON.parse(event.currentTarget.responseText);
 
+					document.getElementById('new-location').value = '';
+
+					if (resp.cod == '404') {
+						window.alert('City was not found. Please try again.');
+						return;
+					}
+
 					console.log(resp);
+					changeWeatherIcon(resp.weather[0]);
 					document.getElementById('weather').innerText =
 						resp.name +
-						' is ' +
+						' is currently ' +
 						resp.weather[0].main +
 						' and ' +
-						Math.ceil(resp.main.temp) +
-						' degrees today.';
+						Math.ceil(fromKelvinToFahrenheit(resp.main.temp)) +
+						' degrees.';
+					document.getElementById('location').innerText =
+						resp.name + ' - ' + zipcode;
+					document.getElementById('currentWeather').innerText =
+						resp.weather[0].main;
+					document.getElementById('temperature').innerText =
+						Math.ceil(fromKelvinToFahrenheit(resp.main.temp)) + ' Degrees';
 				});
 				request.send();
+			}
+
+			function fromKelvinToFahrenheit(temp) {
+				return (temp - 273.15) * 1.8 + 32;
+			}
+
+			function changeWeatherIcon(weatherObj) {
+				document.getElementById('weatherIcon').src =
+					'http://openweathermap.org/img/wn/' + weatherObj.icon + '@2x.png';
+				document.getElementById('weatherIcon').alt = weatherObj.description;
 			}
 		</script>
 	</body>
